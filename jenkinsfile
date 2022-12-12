@@ -8,7 +8,7 @@ pipeline{
      options{
         ansiColor('xterm')
      }
-     stage{
+     stages{
         stage('Deploying'){
             // echo "Buiding the application"
         }
