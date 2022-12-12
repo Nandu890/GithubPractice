@@ -9,6 +9,7 @@ pipeline {
     }
     stages {
         stage('Build') {
+            steps{
             node {
                 // Checkout
                 checkout scm
@@ -21,6 +22,7 @@ pipeline {
 
                 // Archive the built artifacts
                 archive(includes: 'pkg/*.gem')
+            }
             }
         }
         stage('Deploying') {
