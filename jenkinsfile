@@ -1,35 +1,48 @@
-pipeline{
-     agent any
-     parameters{
-        string(name: 'SPEC', defaultValue:"cypress/e2e/**/**",description:"Enter the path you want to execute")
-    choice(name:'BROWSER',choices:['chrome','edge','firefox'],description:"Choice the browser you want to execute your script")
-
-     }
-     options{
+pipeline {
+    agent any
+    parameters {
+        string(name: 'SPEC', defaultValue:'cypress/e2e/**/**', description:'Enter the path you want to execute')
+        choice(name:'BROWSER', choices:['chrome', 'edge', 'firefox'], description:'Choice the browser you want to execute your script')
+    }
+    options {
         ansiColor('xterm')
-     }
-     stages{
-        stage('Deploying'){
-            steps{
-            echo "Buiding the application"
+    }
+    stages {
+        stage('Build') {
+            node {
+                // Checkout
+                checkout scm
+
+                // install required bundles
+                sh 'bundle install'
+
+                // build and run tests with coverage
+                sh 'bundle exec rake build spec'
+
+                // Archive the built artifacts
+                archive(includes: 'pkg/*.gem')
             }
-             
         }
-        stage('Testing'){
-            steps{
-                bat "npm i"
+        stage('Deploying') {
+            steps {
+                echo 'Buiding the application'
+            }
+        }
+        stage('Testing') {
+            steps {
+                bat 'npm i'
                 bat "npx cypress run --browser ${BROWSER} --spec ${SPEC} --headed"
             }
         }
-        stage('Deploying2'){
-                steps{
-            echo "Deploy the application"
-            }
-            }
-     }
-     post{
-        always{
+        stage('Deploying2') {
+                steps {
+                echo 'Deploy the application'
+                }
+        }
+    }
+    post {
+        always {
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'cypress/report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
-     }
+    }
 }
