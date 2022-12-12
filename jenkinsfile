@@ -2,29 +2,30 @@ pipeline {
     agent any
     parameters {
         string(name: 'SPEC', defaultValue:'cypress/e2e/**/**', description:'Enter the path you want to execute')
+        /* groovylint-disable-next-line LineLength */
         choice(name:'BROWSER', choices:['chrome', 'edge', 'firefox'], description:'Choice the browser you want to execute your script')
     }
     options {
         ansiColor('xterm')
     }
     stages {
-        stage('Build') {
-            steps{
-            node {
-                // Checkout
-                checkout scm
+        // stage('Build') {
+        //     steps{
+        //     node {
+        //         // Checkout
+        //         checkout scm
 
-                // install required bundles
-                sh 'bundle install'
+        //         // install required bundles
+        //         sh 'bundle install'
 
-                // build and run tests with coverage
-                sh 'bundle exec rake build spec'
+        //         // build and run tests with coverage
+        //         sh 'bundle exec rake build spec'
 
-                // Archive the built artifacts
-                archive(includes: 'pkg/*.gem')
-            }
-            }
-        }
+        //         // Archive the built artifacts
+        //         archive(includes: 'pkg/*.gem')
+        //     }
+        //     }
+        // }
         stage('Deploying') {
             steps {
                 echo 'Buiding the application'
@@ -44,6 +45,7 @@ pipeline {
     }
     post {
         always {
+            /* groovylint-disable-next-line LineLength */
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'cypress/report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
